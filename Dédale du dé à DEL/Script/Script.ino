@@ -13,7 +13,7 @@ long max_long_val = 2147483647L;
 void setup(){
   byte numDigits = 1;
   byte digitPins[] = {};
-  byte segmentPins[] = {6, 5, 2 , 3, 4 , 7, 8, 9};
+  byte segmentPins[] = {3, 2, 7, 9, 8, 4, 5, 6}; // A, B, C, D, E, F, G, CP      G, F, A, B & E, D, C, CP
   bool resistorsOnSegments = true; 
 
   byte hardwareConfig = COMMON_CATHODE;
