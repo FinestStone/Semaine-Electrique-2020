@@ -1,7 +1,7 @@
 [![N|Solid](
 http://folietechnique.com/sites/folietechnique2.amigow.polymtl.ca/files/logo-folietechnique.png)](http://folietechnique.com/)
 
-# Semaine Électrique 2019
+# Semaine Électrique 2020
 
 Bienvenue sur le répertoire GitHub de la semaine électrique 2020 pour le camp scientifique [Folie Technique](http://folietechnique.com/)!
 
