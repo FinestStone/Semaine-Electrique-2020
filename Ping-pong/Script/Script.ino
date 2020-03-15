@@ -1,125 +1,202 @@
-// Basic script from: https://hackaday.io/project/8865-arduino-x-pong
+// Script tiré de: https://www.instructables.com/id/Arduino-2-player-game/?fbclid=IwAR3h0Ewdb9vfBpgHlrBAeBVreilAuMvhlo2CYb5Z8PpYgrsJAvCcszp77r4
 
-// Arduino Pins
-int btnLeft = 3;
-int btnRight = 2;
-int led0 = 5;
-int led7 = led0 + 7;
+#define PIN_RESET 12
+#define PIN_SCE   11
+#define PIN_DC    10
+#define PIN_SDIN  9
+#define PIN_SCLK  8
 
-// Game variables
-int ballPosition = 0;
-int ballDirection = 0;
-int prevBallPosition = 0;
-int ballDelay = 100;
-int debounceDelay = 200;
+#define LCD_C     LOW
+#define LCD_D     HIGH
 
-// Make code easier to read
-int IsPressed = LOW;
+#define LCD_X     84
+#define LCD_Y     6
 
-void setup() {
-  Serial.begin(9600);
+int barWidth = 16;
+int barHeight = 4;
+int ballPerimeter = 4;
+unsigned int bar1X = 0;
+unsigned int bar1Y = 0;
+unsigned int bar2X = 0;
+unsigned int bar2Y = LCD_Y * 8 - barHeight;
+int ballX = 0;
+int ballY = 0;
+boolean isBallUp = false;
+boolean isBallRight = true;
 
-  pinMode(btnLeft, INPUT_PULLUP);
-  pinMode(btnRight, INPUT_PULLUP);
+byte pixels[LCD_X][LCD_Y];
+unsigned long lastRefreshTime;
+const int refreshInterval = 150;
+byte gameState = 1;
+byte ballSpeed = 2;
+byte player1WinCount = 0;
+byte player2WinCount = 0;
+byte hitCount = 0;
 
-  for (int x = 0; x <= 7; x++)
-    pinMode(led0 + x, OUTPUT);
+void setup(){
+  //Serial.begin(9600);
+  LcdInitialise();
+  restartGame();
 }
 
-void loop() {
-  if (ballDirection == 0)
-    WaitForServe();
-  else
-  {
-    DrawBall();
-    DelayBall();
-    if ((ballPosition == 0) && (ballDirection == -1)) WaitForPlayer(btnLeft, +1, 0);
-    if ((ballPosition == 7) && (ballDirection == +1)) WaitForPlayer(btnRight, -1, 7);
-    else {
-      MoveBall();
+void loop(){
+  unsigned long now = millis();
+  if(now - lastRefreshTime > refreshInterval){
+      update();
+      refreshScreen();
+      lastRefreshTime = now;  
+  }  
+}
+
+void restartGame(){
+   ballSpeed = 1;
+   gameState = 1;
+   ballX = random(0, 60);
+   ballY = 20;
+   isBallUp = false; 
+   isBallRight = true;
+   hitCount = 0;
+}
+
+void refreshScreen(){
+  if(gameState == 1){
+    for(int y = 0; y < LCD_Y; y++){
+        for(int x = 0; x < LCD_X; x++){
+           byte pixel = 0x00;
+           int realY = y * 8;
+           // draw ball if in the frame
+           if(x >= ballX && x <= ballX + ballPerimeter -1 && ballY + ballPerimeter > realY && ballY < realY + 8 ){
+             byte ballMask = 0x00;
+             for(int i = 0; i < realY + 8 - ballY; i++){
+               ballMask = ballMask >> 1;
+               if(i < ballPerimeter)
+                 ballMask = 0x80 | ballMask;
+             }
+             pixel = pixel | ballMask;
+           }
+           
+           // draw bars if in the frame
+           if(x >= bar1X && x <= bar1X + barWidth -1 && bar1Y + barHeight > realY && bar1Y < realY + 8 ){
+             byte barMask = 0x00;
+             for(int i = 0; i < realY + 8 - bar1Y; i++){
+               barMask = barMask >> 1;
+               if(i < barHeight)
+                 barMask = 0x80 | barMask;
+             }
+             pixel = pixel | barMask;
+           }
+           
+           if(x >= bar2X && x <= bar2X + barWidth -1 && bar2Y + barHeight > realY && bar2Y < realY + 8 ){
+             byte barMask = 0x00;
+             for(int i = 0; i < realY + 8 - bar2Y; i++){
+               barMask = barMask >> 1;
+               if(i < barHeight)
+                 barMask = 0x80 | barMask;
+             }
+             pixel = pixel | barMask;
+           }
+           LcdWrite(LCD_D, pixel);
+         }
     }
+  } else if(gameState == 2){
+      
   }
 }
 
-void DelayBall()
-{
-  unsigned long timeout = millis() + ballDelay;
-  while (millis() < timeout)
-  {
-    if ((ballPosition != 0 ) && (digitalRead(btnLeft) == IsPressed)) {
-      GameOver(0);
-      break;
-    }
-
-    if ((ballPosition != 7) && (digitalRead(btnRight) == IsPressed)) {
-      GameOver(7);
-      break;
-    }
-  }
+void update(){
+  if(gameState == 1){
+     int barMargin = LCD_X - barWidth;
+     int pot1 = analogRead(A0); //read potentiometers and set the bar positions
+     int pot2 = analogRead(A1);
+     bar1X = pot1 / 2 * LCD_X / 512;
+     bar2X = pot2 / 2 * LCD_X / 512;
+    
+     if(bar1X > barMargin) bar1X = barMargin;
+     if(bar2X > barMargin) bar2X = barMargin;
+     
+     //move the ball now
+     if(isBallUp)
+       ballY -= ballSpeed;
+     else
+       ballY += ballSpeed;
+     if(isBallRight)
+       ballX += ballSpeed;
+     else
+       ballX -= ballSpeed;
+     //check collisions  
+     if(ballX < 1){
+       isBallRight = true;
+       ballX = 0;
+     }
+     else if(ballX > LCD_X - ballPerimeter - 1){
+       isBallRight = false;
+       ballX = LCD_X - ballPerimeter;
+     }
+     if(ballY < barHeight){
+       if(ballX + ballPerimeter >= bar1X && ballX <= bar1X + barWidth){ // ball bounces from bar1
+         isBallUp = false;
+         if(ballX + ballPerimeter/2 < bar1X + barWidth/2)
+           isBallRight = false;
+         else
+           isBallRight = true;
+         ballY = barHeight;
+         if(++hitCount % 10 == 0 && ballSpeed < 5) 
+           ballSpeed++;
+       }else{ //player2 wins
+         gameState = 2;
+         player2WinCount++;
+       }
+     }
+     if(ballY + ballPerimeter > LCD_Y * 8 - barHeight){
+       if(ballX + ballPerimeter >= bar2X && ballX <= bar2X + barWidth){ //ball bounces from bar2
+         isBallUp = true; 
+         if(ballX + ballPerimeter/2 < bar2X + barWidth/2)
+           isBallRight = false;
+         else
+           isBallRight = true;
+         ballY = LCD_Y * 8 - barHeight - ballPerimeter;
+         if(++hitCount % 10 == 0 && ballSpeed < 5) 
+           ballSpeed++;
+       }else{ // player 1 wins
+         gameState = 2;
+         player1WinCount++;
+       }
+     }
+  }else if(gameState == 2){
+      for(int i =0; i < 4; i++){
+        LcdWrite(LCD_C, 0x0D );  // LCD in inverse mode.
+        delay(300);
+        LcdWrite(LCD_C, 0x0C );  // LCD in inverse mode.
+        delay(300);
+      }
+      restartGame();
+  }  
 }
 
-void WaitForServe()
-{
-  while (true)
-  {
-    if (digitalRead(btnLeft) == IsPressed) {
-      ballPosition = 0;
-      ballDirection = +1;
-      break;
-    }
-    if (digitalRead(btnRight) == IsPressed) {
-      ballPosition = 7;
-      ballDirection = -1;
-      break;
-    }
-  }
+void LcdInitialise(void){
+  pinMode(PIN_SCE, OUTPUT);
+  pinMode(PIN_RESET, OUTPUT);
+  pinMode(PIN_DC, OUTPUT);
+  pinMode(PIN_SDIN, OUTPUT);
+  pinMode(PIN_SCLK, OUTPUT);
   delay(200);
+  digitalWrite(PIN_RESET, LOW);
+  delay(500);
+  digitalWrite(PIN_RESET, HIGH);
+  LcdWrite(LCD_C, 0x21 );  // LCD Extended Commands.
+  LcdWrite(LCD_C, 0xB1 );  // Set LCD Vop (Contrast). 
+  LcdWrite(LCD_C, 0x04 );  // Set Temp coefficent. //0x04
+  LcdWrite(LCD_C, 0x14 );  // LCD bias mode 1:48. //0x13
+  LcdWrite(LCD_C, 0x0C );  // LCD in normal mode.
+  LcdWrite(LCD_C, 0x20 );
+  LcdWrite(LCD_C, 0x80 ); //select X Address 0 of the LCD Ram
+  LcdWrite(LCD_C, 0x40 ); //select Y Address 0 of the LCD Ram - Reset is not working for some reason, so I had to set these addresses
+  LcdWrite(LCD_C, 0x0C );
 }
 
-void SetLED(int which, int state)
-{
-  int pin = led7 - which;
-  if (pin >= led0 && pin <= led7) digitalWrite(pin, state);
-}
-
-void GameOver(int which)
-{
-  for (int n = 0; n < 4; n++)
-  {
-    SetLED(which, HIGH);
-    delay(100);
-    SetLED(which, LOW);
-    delay(100);
-  }
-  ballDirection = 0;
-  ballDelay = 200;
-}
-
-void MoveBall()
-{
-  prevBallPosition = ballPosition;
-  ballPosition = ballPosition + ballDirection;
-}
-
-void DrawBall()
-{
-  SetLED(prevBallPosition, LOW);
-  SetLED(ballPosition, HIGH);
-}
-
-void WaitForPlayer(int buttonPin, int ballDir, int gameOverPin)
-{
-  ballDirection = 0;
-  unsigned long timeout = millis() + 1000L;
-  while (millis() < timeout)
-  {
-    if (digitalRead(buttonPin) == IsPressed) {
-      delay(debounceDelay); // allow button to flutter
-      ballDirection = ballDir;
-      ballDelay =  ballDelay -  5;
-      break;
-    }
-  }
-  if (ballDirection == 0)
-    GameOver(gameOverPin);
+void LcdWrite(byte dc, byte data){
+  digitalWrite(PIN_DC, dc);
+  digitalWrite(PIN_SCE, LOW);
+  shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
+  digitalWrite(PIN_SCE, HIGH);
 }
