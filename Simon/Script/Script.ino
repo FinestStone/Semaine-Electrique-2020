@@ -131,20 +131,20 @@
 #define CHOICE_BLUE (1 << 2)
 #define CHOICE_YELLOW   (1 << 3)
 
-#define LED_RED     4
-#define LED_GREEN   5
-#define LED_BLUE    6
-#define LED_YELLOW  7
+#define LED_RED     2
+#define LED_GREEN   3
+#define LED_BLUE    4
+#define LED_YELLOW  5
 
 // Button pin definitions
-#define BUTTON_RED    8
-#define BUTTON_GREEN  9
-#define BUTTON_BLUE   10
-#define BUTTON_YELLOW 11
+#define BUTTON_RED    6
+#define BUTTON_GREEN  7
+#define BUTTON_BLUE   8
+#define BUTTON_YELLOW 9
 
 // Buzzer pin definitions
-#define BUZZER1  2
-#define BUZZER2  3
+#define BUZZER1  10
+#define BUZZER2  11
 
 // Define game parameters
 #define ROUNDS_TO_WIN      13 //Number of rounds to succesfully remember before you win. 13 is do-able.
