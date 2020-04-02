@@ -1,3 +1,3 @@
 # Dédale du dé à DEL
-Introduction de l'activité à venir prochainement.
+Cette première activité d'introduction consiste à utiliser un afficheur à 7 segments pour créer un dé numérique.
 ![](démo.gif)
