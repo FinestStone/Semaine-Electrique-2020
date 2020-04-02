@@ -1,3 +1,3 @@
 # Tape-la-taupe
-Introduction de l'activité à venir prochainement.
+La seconde activité de la semaine réutilise certaines des composantes de la première activité pour recréer le notoire jeu d'arcade « Whac-A-Mole ».
 ![](démo.gif)
