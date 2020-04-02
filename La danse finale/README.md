@@ -11,7 +11,7 @@ Finalement, référez-vous au dossier [Circuits](https://github.com/FinestStone/
 ## Comment jouer
 Vous êtes fin prêt à épater la galerie avec vos meilleures pas de danse! Assurez-vous d'avoir correctement branché votre circuit, puis lancez l'application StepMania!
 
-![](demo.gif)
+![](démo.gif)
 
 ## Pour en savoir plus
 Vous pouvez consulter le [manuel de référence](https://github.com/stepmania/stepmania/wiki) et trouver d'autres chansons à ajouter à votre bibliothèque [ici](https://search.stepmaniaonline.net/) ou avec une simple recherche sur le net. Amusez-vous bien!
