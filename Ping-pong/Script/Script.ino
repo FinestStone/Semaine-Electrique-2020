@@ -26,7 +26,7 @@ boolean isBallRight = true;
 
 byte pixels[LCD_X][LCD_Y];
 unsigned long lastRefreshTime;
-const int refreshInterval = 150;
+const int refreshInterval = 100;
 byte gameState = 1;
 byte ballSpeed = 2;
 byte player1WinCount = 0;
@@ -140,7 +140,7 @@ void update(){
          else
            isBallRight = true;
          ballY = barHeight;
-         if(++hitCount % 10 == 0 && ballSpeed < 5) 
+         if(++hitCount % 5 == 0 && ballSpeed < 5) 
            ballSpeed++;
        }else{ //player2 wins
          gameState = 2;
@@ -155,7 +155,7 @@ void update(){
          else
            isBallRight = true;
          ballY = LCD_Y * 8 - barHeight - ballPerimeter;
-         if(++hitCount % 10 == 0 && ballSpeed < 5) 
+         if(++hitCount % 5 == 0 && ballSpeed < 5) 
            ballSpeed++;
        }else{ // player 1 wins
          gameState = 2;
