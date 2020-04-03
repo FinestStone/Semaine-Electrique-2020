@@ -23,7 +23,7 @@ Dans l'IDE, cliquez sur Outils -> Type de carte -> Arduino Nano. Aussi, sélecti
 
 Si vous éprouvez des difficultées, vous pouvez consulter ce [lien](https://www.arduino.cc/en/Guide/Troubleshooting#upload) ou encore consulter le [guide de démarrage officiel d'Arduino](https://www.arduino.cc/en/Guide/ArduinoNano). Il est à noter que pour les utilisateurs de Linux, il peut s'avérer nécessaire de modifier certaines permissions liées à l'utilisation du port USB. Si c'est le cas, voici [ce qu'il faut faire](https://www.youtube.com/watch?v=MKS1vVDXiU0).
 
-## Par réaliser un des projet
+## Pour réaliser un des projet
 
 Si vous n'avez pas rencontrer de problème jusqu'à présent, félicitations ! Si vous souhaitez reproduire les projets de la semaine, il vous suffit de cliquer sur le bouton vert "Clone or Download" (dans le haut de la page) et sélectionnez "Download ZIP".
 
